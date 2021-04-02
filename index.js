@@ -1,40 +1,41 @@
-/* 
-
-http://gateway.marvel.com/v1/public/characters?ts=1&apikey=2bdacb7a1f4583f33e4203c84e08d0a1&hash=9deece9ffa95454ab6d363d7531ff8cc
-
-*/
-
-
 let input = document.querySelector('input');
 let resultsBox = document.querySelector('.results-section');
 let button = document.querySelector('button');
 
 
-   // function fetchCharacters() {
-        fetch('http://gateway.marvel.com/v1/public/characters?ts=1&apikey=2bdacb7a1f4583f33e4203c84e08d0a1&hash=9deece9ffa95454ab6d363d7531ff8cc&limit=100')
 
-    .then(res => res.json())
-    .then(data => {
-        let charactersList = data['data']['results'];
-        
-        console.log(charactersList)
-        //results.textContent = characters [0].name;
-        // let marvelImg = characters.thumbnail.path + '.' + characters.thumbnail.extension;
-        // results.innerHTML = `<img src="${marvelImg}" />`
+async function fetchData(searchText) {
+    const response = await fetch('http://gateway.marvel.com/v1/public/characters?ts=1&apikey=2bdacb7a1f4583f33e4203c84e08d0a1&hash=9deece9ffa95454ab6d363d7531ff8cc&limit=100');
+    const data = await response.json();
+    const marvelCharacters = data['data'];
+    const practice = marvelCharacters['results'];
+
     
-        button.addEventListener('click', test);
-        function test() {
-        for (let i = 0; i < charactersList.length; i++) {
+    let characterName = practice.filter(element => {
+        const regex = new RegExp(`^${searchText}`, 'gi');
+       return element.name.match(regex);
+    });
 
-            // selecting character images & adding class name
+    if(searchText.length === 0) {
+        characterName = [];
+        resultsBox.innerHTML = '';
+    }
+
+    displayCharacters(characterName);
+
+};
+
+function displayCharacters(characterName) {
+    if(characterName.length > 0) {
+        const display = characterName.map(match => {
             let marvelImg = document.createElement('img'); 
             marvelImg.className += 'char-images';
-            marvelImg.src = charactersList[i].thumbnail.path + '.' + charactersList[i].thumbnail.extension;
+            marvelImg.src = match.thumbnail.path + '.' + match.thumbnail.extension;
             
             // selecting character names & adding class name
             let marvelHeading = document.createElement('h3');
             marvelHeading.className += 'marvel-heading'; 
-            marvelHeading.innerHTML = charactersList[i].name;
+            marvelHeading.innerHTML = match.name;
 
             // creating marvelHeadingBox
             let marvelHeadingBox = document.createElement('div');
@@ -49,18 +50,10 @@ let button = document.querySelector('button');
             characterBox.appendChild(marvelImg);
             characterBox.appendChild(marvelHeadingBox);
             marvelHeadingBox.appendChild(marvelHeading);
-
-            // temporary code
-            if (charactersList[i] === charactersList[9]) {
-                break;
-            }    
-        }
-
+        });
     }
-    })
+}
 
 
-
-
-
+input.addEventListener('input', () => fetchData(input.value));
 
