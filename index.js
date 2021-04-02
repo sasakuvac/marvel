@@ -32,20 +32,16 @@ function displayCharacters(characterName) {
             marvelImg.className += 'char-images';
             marvelImg.src = match.thumbnail.path + '.' + match.thumbnail.extension;
             
-            // selecting character names & adding class name
             let marvelHeading = document.createElement('h3');
             marvelHeading.className += 'marvel-heading'; 
             marvelHeading.innerHTML = match.name;
 
-            // creating marvelHeadingBox
             let marvelHeadingBox = document.createElement('div');
             marvelHeadingBox.className += 'marvel-heading-box';
 
-            // creating article element
             let characterBox = document.createElement('article');
             characterBox.className += 'character-box';
 
-            // adding elements
             resultsBox.appendChild(characterBox);
             characterBox.appendChild(marvelImg);
             characterBox.appendChild(marvelHeadingBox);
