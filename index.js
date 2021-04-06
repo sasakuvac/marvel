@@ -1,55 +1,57 @@
-let input = document.querySelector('input');
-let resultsBox = document.querySelector('.results-section');
-let button = document.querySelector('button');
+const input = document.querySelector('.search-input');
+const resultsBox = document.querySelector('.results-section');
+let results = '';
 
 
-
-async function fetchData(searchText) {
-    const response = await fetch('http://gateway.marvel.com/v1/public/characters?ts=1&apikey=2bdacb7a1f4583f33e4203c84e08d0a1&hash=9deece9ffa95454ab6d363d7531ff8cc&limit=100');
-    const data = await response.json();
-    const marvelCharacters = data['data'];
-    const practice = marvelCharacters['results'];
-
-    
-    let characterName = practice.filter(element => {
-        const regex = new RegExp(`^${searchText}`, 'gi');
-       return element.name.match(regex);
-    });
-
-    if(searchText.length === 0) {
-        characterName = [];
-        resultsBox.innerHTML = '';
-    }
-
-    displayCharacters(characterName);
-
+if (localStorage.length < 1) {
+    fetch('http://gateway.marvel.com/v1/public/characters?ts=1&apikey=2bdacb7a1f4583f33e4203c84e08d0a1&hash=9deece9ffa95454ab6d363d7531ff8cc&limit=100')
+    .then(response => response.json())
+    .then(data => {
+        let marvelCharacters = data.data;
+        localStorage.setItem('results', JSON.stringify(marvelCharacters.results));
+    })
 };
 
-function displayCharacters(characterName) {
-    if(characterName.length > 0) {
-        const display = characterName.map(match => {
-            let marvelImg = document.createElement('img'); 
-            marvelImg.className += 'char-images';
-            marvelImg.src = match.thumbnail.path + '.' + match.thumbnail.extension;
+let charactersList = JSON.parse(localStorage.getItem('results'));
+
+function displayCharacters() {
+
+    let filteredResults = charactersList.filter(character => 
+        character.name.includes(results)
+     );
+
+     console.log(filteredResults)
+
+     filteredResults.forEach(character => {
+        let marvelImg = document.createElement('img'); 
+        marvelImg.className += 'char-images';
+        marvelImg.src = character.thumbnail.path + '.' + character.thumbnail.extension;
             
-            let marvelHeading = document.createElement('h3');
-            marvelHeading.className += 'marvel-heading'; 
-            marvelHeading.innerHTML = match.name;
+        let marvelHeading = document.createElement('h3');
+        marvelHeading.className += 'marvel-heading'; 
+        marvelHeading.innerHTML = character.name;
 
-            let marvelHeadingBox = document.createElement('div');
-            marvelHeadingBox.className += 'marvel-heading-box';
+        let marvelHeadingBox = document.createElement('div');
+        marvelHeadingBox.className += 'marvel-heading-box';
 
-            let characterBox = document.createElement('article');
-            characterBox.className += 'character-box';
+        let characterBox = document.createElement('article');
+        characterBox.className += 'character-box';
 
-            resultsBox.appendChild(characterBox);
-            characterBox.appendChild(marvelImg);
-            characterBox.appendChild(marvelHeadingBox);
-            marvelHeadingBox.appendChild(marvelHeading);
-        });
+        resultsBox.appendChild(characterBox);
+        characterBox.appendChild(marvelImg);
+        characterBox.appendChild(marvelHeadingBox);
+        marvelHeadingBox.appendChild(marvelHeading);
+     });
+ 
+    if(results.length === 0) {
+        resultsBox.innerHTML = '';
     }
-}
+};
 
 
-input.addEventListener('input', () => fetchData(input.value));
+input.addEventListener('input', e => {
+    e.preventDefault();
+   results = e.target.value;
+    displayCharacters();
+});
 
