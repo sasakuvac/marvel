@@ -1,28 +1,24 @@
 const input = document.querySelector('.search-input');
 const resultsBox = document.querySelector('.results-section');
-let results = '';
+let charactersList;
 
-
-if (localStorage.length < 1) {
+if (!localStorage.getItem('results')) {
     fetch('http://gateway.marvel.com/v1/public/characters?ts=1&apikey=2bdacb7a1f4583f33e4203c84e08d0a1&hash=9deece9ffa95454ab6d363d7531ff8cc&limit=100')
     .then(response => response.json())
     .then(data => {
-        let marvelCharacters = data.data;
-        localStorage.setItem('results', JSON.stringify(marvelCharacters.results));
+        charactersList = data.data;
+        localStorage.setItem('results', JSON.stringify(charactersList.results));
     })
-};
+    displayCharacters(charactersList);
+} else {
+    charactersList = JSON.parse(localStorage.getItem('results'));
+    displayCharacters(charactersList);
+}
 
-let charactersList = JSON.parse(localStorage.getItem('results'));
 
-function displayCharacters() {
-
-    let filteredResults = charactersList.filter(character => 
-        character.name.includes(results)
-     );
-
-     console.log(filteredResults)
-
-     filteredResults.forEach(character => {
+function displayCharacters(marvelResults) {
+    console.log(marvelResults)
+     marvelResults.forEach(character => {
         let marvelImg = document.createElement('img'); 
         marvelImg.className += 'char-images';
         marvelImg.src = character.thumbnail.path + '.' + character.thumbnail.extension;
@@ -42,16 +38,15 @@ function displayCharacters() {
         characterBox.appendChild(marvelHeadingBox);
         marvelHeadingBox.appendChild(marvelHeading);
      });
- 
-    if(results.length === 0) {
-        resultsBox.innerHTML = '';
-    }
 };
 
+input.addEventListener('keyup', event => {
+    let characters = charactersList.filter(character => 
+       character.name.toLowerCase().includes(event.target.value)
+    );
 
-input.addEventListener('input', e => {
-    e.preventDefault();
-   results = e.target.value;
-    displayCharacters();
+    resultsBox.innerHTML = '';
+    displayCharacters(characters);
 });
+
 
