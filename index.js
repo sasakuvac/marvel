@@ -1,6 +1,50 @@
 const input = document.querySelector('.search-input');
 const resultsBox = document.querySelector('.results-section');
 let charactersList;
+const previousBtn = document.querySelector('.previous');
+const nextBtn = document.querySelector('.next');
+const totalPages = document.querySelector('.total-pages');
+const currentPage = document.querySelector('.current-page');
+const PER_PAGE = 12;
+
+let currentPageNumber = 1;
+previousBtn.disabled = currentPageNumber === 1;
+currentPage.textContent = currentPageNumber;
+
+function loadPaging(totalItems, callback) {
+    const totalPageCount = Math.ceil(totalItems / PER_PAGE);
+    totalPages.textContent = totalPageCount;
+
+    function updatePaging() {
+        currentPage.textContent = currentPageNumber;
+        const pagingOptions = {
+            currentPageNumber: currentPageNumber,
+            perPage: PER_PAGE
+        };
+        callback(pagingOptions);
+        nextBtn.disabled = currentPageNumber === totalPageCount;
+        previousBtn.disabled = currentPageNumber === 1;
+    }
+    updatePaging();
+    nextBtn.addEventListener('click', () => {
+        currentPageNumber++;
+        updatePaging();
+    });
+    
+    previousBtn.addEventListener('click', () => {
+        currentPageNumber--;
+        updatePaging();
+    });
+}
+
+function pageArraySplit(array, pagingOptions) {
+    const currentPageNumber = pagingOptions.currentPageNumber;
+    const perPage = pagingOptions.perPage;
+    const startingIndex = (currentPageNumber - 1) * perPage;
+    const endingIndex = startingIndex + perPage;
+
+    return array.slice(startingIndex, endingIndex);
+}
 
 if (!localStorage.getItem('marvel')) {
     fetch('http://gateway.marvel.com/v1/public/characters?ts=1&apikey=2bdacb7a1f4583f33e4203c84e08d0a1&hash=9deece9ffa95454ab6d363d7531ff8cc&limit=100')
@@ -14,13 +58,18 @@ if (!localStorage.getItem('marvel')) {
             }))
 
             localStorage.setItem('marvel', JSON.stringify(charactersList));
-            displayCharacters(charactersList);
+            loadPaging(charactersList.length, pagingOptions => {
+                const newCharacterList = pageArraySplit(charactersList, pagingOptions);
+                displayCharacters(newCharacterList);
+            })
         })
 } else {
     charactersList = JSON.parse(localStorage.getItem('marvel'));
-    displayCharacters(charactersList);
+    loadPaging(charactersList.length, pagingOptions => {
+        const newCharacterList = pageArraySplit(charactersList, pagingOptions);
+        displayCharacters(newCharacterList);
+    });
 }
-
 
 function displayCharacters(marvelResults) {
     marvelResults.forEach(character => {
@@ -50,15 +99,20 @@ function displayCharacters(marvelResults) {
         marvelHeadingBox.appendChild(marvelHeading);
         marvelHeadingBox.appendChild(bookmarkBorder);
     });
-};
 
+    
+};
 
 input.addEventListener('keyup', event => {
     let characters = charactersList.filter(character =>
         character.name.toLowerCase().includes(event.target.value)
     );
     resultsBox.innerHTML = '';
-    displayCharacters(characters);
+    nextBtn.disabled = characters == true;
+    loadPaging(characters.length, pagingOptions => {
+        const newArray = pageArraySplit(characters, pagingOptions);
+        displayCharacters(newArray);
+    })
     bookmarking();
 });
 
