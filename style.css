@@ -11,15 +11,13 @@ html {
 
 header {
     margin-top: 20px;
-    height: 700px;
-    background: url(./images/marvel.jpg);
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
 }
 
 .search-section {
-    height: 300px;
+    height: 150px;
 }
 
 .search {
@@ -70,9 +68,7 @@ nav {
     margin-top: 20px;
     width: 225px;
     height: 350px;
-    cursor: pointer;
     transition: all .3s ease-in-out;
-    /*clip-path: polygon(0% 0%, 100% 0, 100% 93%, 93% 100%, 0% 100%);*/
     clip-path: polygon(0% 0%, 100% 0, 100% 94%, 93% 100%, 0% 100%);
 }
 
@@ -81,9 +77,7 @@ nav {
 }
 
 .char-images {
-    /*width: 350px;*/
     height: 60%;
-    /*height: 450px;*/
     border-bottom: 4px solid red;
 }
 
@@ -99,4 +93,21 @@ nav {
 
 }
 
+.marvel-bookmark {
+    border-radius: 10px;
+    background-color: rgb(255, 255, 255, .7);
+    position: absolute;
+    padding: 3px;
+    margin: 5px;
+    color: red;
+    cursor: pointer;
+}
 
+.bookmarked-results>article {
+    border: solid 2px rgb(120, 209, 120);
+}
+
+.no-results {
+    display: block;
+    padding: 100px;
+}
